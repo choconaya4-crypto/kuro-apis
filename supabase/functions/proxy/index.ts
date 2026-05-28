@@ -136,6 +136,19 @@ Deno.serve(async (req: Request) => {
 
     // Proxy to chat function with Firebase authentication
     if (path.includes('/proxy/chat')) {
+      // Public endpoints: GET /models dan /health tidak butuh auth
+      if (req.method === 'GET' && (path.includes('/models') || path.includes('/health'))) {
+        const chatPath = path.replace('/proxy/chat', '');
+        const response = await fetch(`${supabaseUrl}/functions/v1/chat${chatPath}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        return new Response(JSON.stringify(data), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
       const authHeader = req.headers.get('Authorization');
       const firebaseToken = req.headers.get('X-Firebase-Token');
 
