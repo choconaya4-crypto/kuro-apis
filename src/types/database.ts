@@ -46,4 +46,5 @@ export interface AIModel {
   id: string;
   provider: string;
   free: boolean;
+  via?: 'openrouter' | 'deepai';
 }
